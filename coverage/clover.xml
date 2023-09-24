@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1695424194447" clover="3.2.0">
+  <project timestamp="1695424194447" name="All files">
+    <metrics statements="13" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="9" coveredmethods="0" elements="22" coveredelements="1" complexity="0" loc="13" ncloc="13" packages="1" files="2" classes="2"/>
+    <file name="die.js" path="/Users/josilynmcguinness/Projects/wdg/chutes_and_ladders/src/js/model/die.js">
+      <metrics statements="11" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="8" coveredmethods="0"/>
+      <line num="18" count="0" type="stmt"/>
+      <line num="26" count="0" type="stmt"/>
+      <line num="34" count="0" type="stmt"/>
+      <line num="38" count="0" type="stmt"/>
+      <line num="42" count="0" type="stmt"/>
+      <line num="43" count="0" type="stmt"/>
+      <line num="44" count="0" type="stmt"/>
+      <line num="46" count="0" type="stmt"/>
+      <line num="50" count="0" type="stmt"/>
+      <line num="51" count="0" type="stmt"/>
+      <line num="52" count="0" type="stmt"/>
+    </file>
+    <file name="functions.js" path="/Users/josilynmcguinness/Projects/wdg/chutes_and_ladders/src/js/model/functions.js">
+      <metrics statements="2" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+      <line num="18" count="1" type="stmt"/>
+      <line num="19" count="0" type="stmt"/>
+    </file>
+  </project>
+</coverage>

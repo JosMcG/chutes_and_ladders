@@ -11,9 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+import {expect,test} from '@jest/globals';
+import { generateRandomNumber } from '../../src/js/model/functions'
 
-import '../../src/js/model/functions'
-
+//This test seems redundant. Is it necessary?
 test('test random number function', () => {
-  throw new Error("Method not implemented.");
+  for(let i = 1; i < 100; i++) {
+    expect(generateRandomNumber(i)).toBeGreaterThanOrEqual(1);
+    expect(generateRandomNumber(i)).toBeLessThanOrEqual(i);
+  }
 })

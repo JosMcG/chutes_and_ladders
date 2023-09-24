@@ -11,9 +11,18 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+import { Die } from '../../src/js/model/die'
 
-import '../../src/js/model/die'
 
-test('Test die class', () => {
-  throw new Error("Method not implemented.");
+test('Test 10 sided die', () =>{
+  const d = new Die(10);
+  for(let i = 0; i < 1000; i++) {
+    expect(d.roll()).toBeGreaterThanOrEqual(1);
+    expect(d.roll()).toBeLessThanOrEqual(10);
+  }
+})
+
+test('Test rolling multiple times', () => {
+    const d = new Die(10);
+    expect(d.rollMultiple(d.sides)).toHaveLength(10);
 })

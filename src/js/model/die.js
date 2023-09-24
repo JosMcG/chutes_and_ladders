@@ -11,34 +11,59 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+import { generateRandomNumber } from "./functions.js";
+export class SummedRolls {
 
-export class SummedRoll {
-  // Shoud return an array of numbers
-  rollValues() {
-    throw new Error("Method not implemented.");
+  constructor(rolls) {
+    this.rolls = [...rolls];
+    this.sum = this.rolls.reduce((runningSum, currentRoll) => runningSum + currentRoll);
   }
+
+  // Should return an array of numbers
+  rollValues() {
+    return this.rolls;
+  }
+
   // Should return a sum of all the roles as a number value
   sum() {
-    throw new Error("Method not implemented.");
+    return this.sum;
   }
 }
 
-export class Die {
+
+export class Die { 
+  #sides;
+
+  constructor(sides) {
+    this.#sides = sides;
+  }
+
   // Should return a number of sides
   get sides() {
-    throw new Error("Method not implemented.");
-  }
-  // Should return a random number between one and the total sides
-  roll() {
-    throw new Error("Method not implemented.");
-  }
-  // Should return an array of numbers
-  rollMultiple(totalRolls) {
-    throw new Error("Method not implemented.");
-  }
-  // Should return a SummedRoll
-  rollMultipleAndSum(totalRolls) {
-    throw new Error("Method not implemented.");
+    return this.#sides;
   }
 
+  // Should return a random number between one and the total sides
+  roll() {
+    return generateRandomNumber(this.#sides);
+  }
+
+  // Should return an array of numbers
+  rollMultiple(totalRolls) {
+    let rolls = new Array(totalRolls);
+    return rolls.fill(0).map(() => this.roll())   
+  }
+
+  // Should return a SummedRoll
+  rollMultipleAndSum(totalRolls) {
+    return new SummedRolls(this.rollMultiple(totalRolls))
+  }
 }
+
+
+
+const d = new Die(10);
+console.log(d.sides)
+console.log(d.roll())
+console.log(d.rollMultiple(5))
+console.log(d.rollMultipleAndSum(5))
