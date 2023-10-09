@@ -18,3 +18,4 @@
 export const generateRandomNumber = (upperBound) => {
   return Math.floor(Math.random() * upperBound) + 1;
 }
+

@@ -32,20 +32,20 @@ export class SummedRolls {
 
 
 export class Die { 
-  #sides;
+  #Sides;
 
   constructor(sides) {
-    this.#sides = sides;
+    this.#Sides = sides;
   }
 
   // Should return a number of sides
   get sides() {
-    return this.#sides;
+    return this.#Sides;
   }
 
   // Should return a random number between one and the total sides
   roll() {
-    return generateRandomNumber(this.#sides);
+    return generateRandomNumber(this.#Sides);
   }
 
   // Should return an array of numbers
@@ -60,10 +60,3 @@ export class Die {
   }
 }
 
-
-
-const d = new Die(10);
-console.log(d.sides)
-console.log(d.roll())
-console.log(d.rollMultiple(5))
-console.log(d.rollMultipleAndSum(5))

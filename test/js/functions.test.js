@@ -14,10 +14,33 @@
 import {expect,test} from '@jest/globals';
 import { generateRandomNumber } from '../../src/js/model/functions'
 
-//This test seems redundant. Is it necessary?
+//This test seems redundant since it is being tested in the Die rolls() test.
+//What is the best way to test a function used by another function?
 test('test random number function', () => {
-  for(let i = 1; i < 100; i++) {
-    expect(generateRandomNumber(i)).toBeGreaterThanOrEqual(1);
-    expect(generateRandomNumber(i)).toBeLessThanOrEqual(i);
+  const allNums = [];
+  let ranNum;
+  for(let i = 1; i < 1000; i++) {
+    ranNum = generateRandomNumber(i);
+    allNums.push(ranNum);
+    expect(ranNum).toBeGreaterThanOrEqual(1);
+    expect(ranNum).toBeLessThanOrEqual(i);
+
   }
+  let count = 0;
+  allNums.forEach(n => { 
+    if(n === 1){
+      ++count;
+    }
+  })
+  expect(count).toBeGreaterThanOrEqual(1);
+  expect(count).toBeLessThanOrEqual(500);
+
+  count = 0;
+  allNums.forEach(n => { 
+    if(n === 4){
+      ++count;
+    }
+  })
+  expect(count).toBeGreaterThanOrEqual(1);
+  expect(count).toBeLessThanOrEqual(500);
 })
