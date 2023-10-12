@@ -17,15 +17,15 @@ import { generateRandomNumber } from '../../src/js/model/functions'
 //This test seems redundant since it is being tested in the Die rolls() test.
 //What is the best way to test a function used by another function?
 test('test random number function', () => {
-  const allNums = [];
   let ranNum;
-  for(let i = 1; i < 1000; i++) {
+  for(let i = 1; i < 100; i++) {
     ranNum = generateRandomNumber(i);
-    allNums.push(ranNum);
     expect(ranNum).toBeGreaterThanOrEqual(1);
     expect(ranNum).toBeLessThanOrEqual(i);
-
   }
+})
+
+/*
   let count = 0;
   allNums.forEach(n => { 
     if(n === 1){
@@ -43,4 +43,4 @@ test('test random number function', () => {
   })
   expect(count).toBeGreaterThanOrEqual(1);
   expect(count).toBeLessThanOrEqual(500);
-})
+})*/

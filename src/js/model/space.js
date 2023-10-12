@@ -14,12 +14,12 @@
 import { Avatar } from "./avatar.js";
 
 //enum for type of space
-class SpaceType {
-  static START = 0;
-  static NORMAL = 1;
-  static CHUTE = 2;
-  static LADDER = 3;
-  static WINNING = 4;
+export class SpaceType {
+  static START = 1;
+  static NORMAL = 2;
+  static CHUTE = 3;
+  static LADDER = 4;
+  static END = 5;
 }
 Object.freeze(SpaceType);   //Do not want SpaceType variables to be changed
 
@@ -27,6 +27,7 @@ export class Space {
   #Value     //number of space
   #Type      //specifies if it is a normal, ladder, chute, or winning space
   #Next     //Space object (if using linked list) or number (if using array) for the next space when traversing the board
+  #Back
   #Special  //Space object (if using linked list) or number (if using array) for the destination of a type ladder or chute
   #Avatars  //array of avatars
 
@@ -34,8 +35,9 @@ export class Space {
   constructor (value, type) {
     this.#Value = value;
     this.#Type = type;
-    this.#Next = value + 1;
-    this.#Special = null;
+    this.#Next = null;  //This will be a Space object
+    this.#Back = null;  //This will be a Space object
+    this.#Special = null;  //This will be a Space object
     this.#Avatars = [];
   }
   
@@ -57,9 +59,18 @@ export class Space {
     return this.#Next;
   }
 
-  //Sets next to a space object - points to next space
+  //Sets next to a space object, pointing to next space
   set next (nextSpace) {
     this.#Next = nextSpace;
+  }
+
+  get back () {
+    return this.#Back
+  }
+
+  //Sets back to a space object, pointing to the previous space
+  set back (previousSpace) {
+    this.#Back = previousSpace;
   }
 
   get special () {
@@ -85,6 +96,10 @@ export class Space {
 
   //Takes the avatar interacting with the space, and sets its location to the space it occupies
   land (avatar) {
+    //Check to see if avatar landed on winning space
+    if (this.type == SpaceType.END){
+      console.log(avatar.color + " won!")  //*****end game at this point*****
+    }
     //Allow > 1 avatar on the start space; if avatar lands on a space already occupied,
     //move the first occupying avatar one space, then place other avatar on the space
     if (this.occupied && this.type != SpaceType.START) {
@@ -94,7 +109,8 @@ export class Space {
     if (this.#Special){
       avatar.location = this.#Special;
       this.#Special.avatars = avatar;
-    } else{                     //Land on a normal space
+    //Land on a normal space
+    } else{                     
       this.avatars = avatar;
       avatar.location = this;
     }
@@ -115,27 +131,41 @@ const n4 = new Space(4, SpaceType.NORMAL);
 const n5 = new Space(5, SpaceType.NORMAL);
 const n6 = new Space(6, SpaceType.NORMAL);
 const n7 = new Space(7, SpaceType.CHUTE);
+const n8 = new Space(8, SpaceType.END);
 
 const avatar = new Avatar("yellow")
 const avatar2 = new Avatar("green")
 start.next = n2;
 n2.next = n3;  //ladder
 n2.special = n5;
-n3.next = n4;  
+n2.back = start;
+n3.next = n4;
+n3.back = n2;  
 n4.next = n5;
+n4.back = n3;
 n5.next = n6;  //end ladder
+n5.back = n4;
 n6.next = n7;
+n6.back = n5;
+n7.next = n8;
+n7.back = n6;
 n7.special = n3;
+n8.next = null;
+n8.back = n7;
 
 start.land(avatar)
 start.land(avatar2)
 console.log("av2 at start: " + avatar2.location.value)
 console.log("av at start: " + avatar.location.value)
 avatar.move(1)
-console.log(avatar.location.value)
+console.log("Av is at: " + avatar.location.value)
 avatar.move(2)
-console.log(avatar.location.value)
-console.log(avatar2.location.value)
+console.log("Av is at: " + avatar.location.value)
+console.log("Av2 is at: " + avatar2.location.value)
 avatar2.move(2)
-console.log(avatar2.location.value)
-console.log(avatar.location.value)
+console.log("Av2 is at: " + avatar2.location.value)
+avatar2.moveBack(1)
+console.log("Av2 is at: " + avatar2.location.value)
+console.log("Av is at: " + avatar.location.value)
+avatar.move(7)
+avatar.move(5)

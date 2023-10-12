@@ -36,11 +36,39 @@ export class Avatar {
   //Sends the avatar to the occupied space
   move (numSpaces) {
     let loc = this.#Location;
+    let overshotWin = false;
     //Traverse through spaces according the next pointer
     for (let i = 0; i < numSpaces; i++){
+      //Check to see if number of moves is passed winning space
+      if (loc.next == null && i < numSpaces){
+        overshotWin = true;
+        console.log("Overshot the end space. Stay put.")
+        break;
+      }
       loc = loc.next; 
     }
-    loc.leave();
-    loc.land(this);
+    if(!overshotWin){
+      loc.leave();
+      loc.land(this);
+    }
+  }
+
+  moveBack (numSpaces) {
+    let loc = this.#Location;
+    let underShotStart = false;
+    //Traverse through spaces according the next pointer
+    for (let i = 0; i < numSpaces; i++){
+      //Check to see if number of moves is prior to starting space
+      if (loc.back == null && i < numSpaces){
+        underShotStart = true;
+        console.log("Undershot the start space. Stay put.")
+        break;
+      }
+      loc = loc.back; 
+    }
+    if(!underShotStart){
+      loc.leave();
+      loc.land(this);
+    }
   }
 }

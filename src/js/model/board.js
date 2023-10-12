@@ -14,16 +14,7 @@
 import { generateRandomNumber } from "./functions.js";
 import { Space } from "./space.js"
 
-class Board {
-  
-  head = new Space(1);
 
-  setUp (startSpace) {
-    this.head = startSpace;
-  }
-
-
-}
 
 
 /*export function createBoard(numSpaces) {
