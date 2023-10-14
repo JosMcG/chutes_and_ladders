@@ -11,7 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-import { ModuleDetectionKind } from 'typescript';
 import { Die, SummedRolls } from '../../src/js/model/die'
 
 
@@ -22,11 +21,20 @@ test('Test 6 sided die for 100 rolls', () =>{
     expect(d.roll()).toBeLessThanOrEqual(6);
   }
 })
-
-test('Test rolling multiple times', () => {
-  const d = new Die(10);
-  expect(d.rollMultiple(d.sides)).toHaveLength(10);
+describe('Testing rolls() for proper length and variance in resulting numbers', () => {
+    const d = new Die(10);
+    const rolls = d.rollMultiple(1000);
+  test('Test rolling multiple times', () => {
+    expect(rolls).toHaveLength(1000);
+  })
+  test('Check to ensure each number has been rolled at least once', () => {
+    for(let n = 1; n <= 10; n++){
+      expect(rolls.includes(n)).toBeTruthy();
+    }    
+  })
 })
+
+
 
 test('Test rollMultipleAndSum for returning a SummedRolls object', () => {
   const d = new Die(6);

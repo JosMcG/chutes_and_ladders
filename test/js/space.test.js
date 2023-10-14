@@ -27,23 +27,35 @@ test("testing space", () => {
 
   const avatar = new Avatar("yellow")
   start.next = n2;
+  start.previous = null;
   n2.next = n3;  //ladder
+  n2.previous = start;
   n2.special = n5;
   n3.next = n4;  //end chute
+  n3.previous = n2;
   n4.next = n5;
+  n4.previous = n3;
   n5.next = n6;  //end ladder
+  n5.previous = n4;
   n6.next = n7;
+  n6.previous = n5;
   n7.next = n8;
+  n7.previous = n6;
   n7.special = n3; //chute
   n8.next = null;
+  n8.previous = n7;
 
   start.land(avatar)
   avatar.move(1)
   expect(avatar.location.value).toBe(5)     //test the ladder
   avatar.move(2)
   expect(avatar.location.value).toBe(3)     //test the chute
+  avatar.move(-2)
+  expect(avatar.location.value).toBe(1)
+  avatar.move(8)
+  expect(avatar.location.value).toBe(1)     //test overshooting the ending space
+  avatar.move(-5)
+  expect(avatar.location.value).toBe(1)     //test undershooting start space
   avatar.move(7)
-  expect(avatar.location.value).toBe(3)     //test overshooting the ending space
-  avatar.move(5)
   expect(avatar.location.value).toBe(8)     //test landing on END
 })

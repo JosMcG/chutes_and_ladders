@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { Avatar } from "./avatar.js";
+import { Die } from "./die.js"
 
 //enum for type of space
 export class SpaceType {
@@ -26,8 +27,8 @@ Object.freeze(SpaceType);   //Do not want SpaceType variables to be changed
 export class Space {
   #Value     //number of space
   #Type      //specifies if it is a normal, ladder, chute, or winning space
-  #Next     //Space object (if using linked list) or number (if using array) for the next space when traversing the board
-  #Back
+  #Next     //Space object for the next space when traversing the board
+  #Previous //Space object for previous space when traversing the board
   #Special  //Space object (if using linked list) or number (if using array) for the destination of a type ladder or chute
   #Avatars  //array of avatars
 
@@ -36,7 +37,7 @@ export class Space {
     this.#Value = value;
     this.#Type = type;
     this.#Next = null;  //This will be a Space object
-    this.#Back = null;  //This will be a Space object
+    this.#Previous = null;  //This will be a Space object
     this.#Special = null;  //This will be a Space object
     this.#Avatars = [];
   }
@@ -64,13 +65,13 @@ export class Space {
     this.#Next = nextSpace;
   }
 
-  get back () {
-    return this.#Back
+  get previous () {
+    return this.#Previous
   }
 
   //Sets back to a space object, pointing to the previous space
-  set back (previousSpace) {
-    this.#Back = previousSpace;
+  set previous (previousSpace) {
+    this.#Previous = previousSpace;
   }
 
   get special () {
@@ -103,6 +104,7 @@ export class Space {
     //Allow > 1 avatar on the start space; if avatar lands on a space already occupied,
     //move the first occupying avatar one space, then place other avatar on the space
     if (this.occupied && this.type != SpaceType.START) {
+      console.log("Someone is already here")
       this.#Avatars[this.#Avatars.length - 1].move(1);   //Is it okay to assume only one avatar in array?
     }
     //If avatar lands on a chute or ladder space, move it accordingly
@@ -110,9 +112,9 @@ export class Space {
       avatar.location = this.#Special;
       this.#Special.avatars = avatar;
     //Land on a normal space
-    } else{                     
-      this.avatars = avatar;
-      avatar.location = this;
+    } else {                     
+    this.avatars = avatar;
+    avatar.location = this;
     }
 
     
@@ -133,39 +135,45 @@ const n6 = new Space(6, SpaceType.NORMAL);
 const n7 = new Space(7, SpaceType.CHUTE);
 const n8 = new Space(8, SpaceType.END);
 
-const avatar = new Avatar("yellow")
-const avatar2 = new Avatar("green")
+const avatar = new Avatar("yellow");
+const avatar2 = new Avatar("green");
 start.next = n2;
+start.previous = null;
 n2.next = n3;  //ladder
 n2.special = n5;
-n2.back = start;
-n3.next = n4;
-n3.back = n2;  
+n2.previous = start;
+n3.next = n4; //end chute
+n3.previous = n2;  
 n4.next = n5;
-n4.back = n3;
+n4.previous = n3;
 n5.next = n6;  //end ladder
-n5.back = n4;
+n5.previous = n4;
 n6.next = n7;
-n6.back = n5;
+n6.previous = n5;
 n7.next = n8;
-n7.back = n6;
-n7.special = n3;
+n7.previous = n6;
+n7.special = n3; //chute
 n8.next = null;
-n8.back = n7;
+n8.previous = n7;
 
 start.land(avatar)
 start.land(avatar2)
-console.log("av2 at start: " + avatar2.location.value)
-console.log("av at start: " + avatar.location.value)
-avatar.move(1)
-console.log("Av is at: " + avatar.location.value)
+console.log("yellow at start: " + avatar.location.value)
+console.log("green at start: " + avatar2.location.value)
+console.log("moving yellow....")
 avatar.move(2)
-console.log("Av is at: " + avatar.location.value)
-console.log("Av2 is at: " + avatar2.location.value)
-avatar2.move(2)
-console.log("Av2 is at: " + avatar2.location.value)
-avatar2.moveBack(1)
-console.log("Av2 is at: " + avatar2.location.value)
-console.log("Av is at: " + avatar.location.value)
-avatar.move(7)
+console.log("yellow location: " + avatar.location.value)
+console.log("moving green....")
+avatar2.move(4)
+console.log("green location: " + avatar2.location.value)
+console.log("yellow moving to an occupied space...")
+avatar.move(2)
+console.log("yellow location: " + avatar.location.value)
+console.log("green location: " + avatar2.location.value)
+avatar.move(-2)
+console.log("yellow location: " + avatar.location.value)
+avatar.move(10)
+console.log("yellow location: " + avatar.location.value)
+avatar.move(-5)
+console.log("yellow location: " + avatar.location.value)
 avatar.move(5)

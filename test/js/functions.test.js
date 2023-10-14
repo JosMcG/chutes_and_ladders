@@ -24,23 +24,3 @@ test('test random number function', () => {
     expect(ranNum).toBeLessThanOrEqual(i);
   }
 })
-
-/*
-  let count = 0;
-  allNums.forEach(n => { 
-    if(n === 1){
-      ++count;
-    }
-  })
-  expect(count).toBeGreaterThanOrEqual(1);
-  expect(count).toBeLessThanOrEqual(500);
-
-  count = 0;
-  allNums.forEach(n => { 
-    if(n === 4){
-      ++count;
-    }
-  })
-  expect(count).toBeGreaterThanOrEqual(1);
-  expect(count).toBeLessThanOrEqual(500);
-})*/

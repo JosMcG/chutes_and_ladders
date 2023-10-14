@@ -33,42 +33,25 @@ export class Avatar {
     this.#Location = space
   }
 
-  //Sends the avatar to the occupied space
+  //Moves the avatar the given number of spaces.
+  //Negative numbers will move the avatar backwards.
   move (numSpaces) {
     let loc = this.#Location;
-    let overshotWin = false;
+    let moveDirection = numSpaces > 0 ? "next" : "previous";
+    numSpaces = Math.abs(numSpaces)  //keep the number of spaces to move positive after this point
+
     //Traverse through spaces according the next pointer
-    for (let i = 0; i < numSpaces; i++){
-      //Check to see if number of moves is passed winning space
-      if (loc.next == null && i < numSpaces){
-        overshotWin = true;
-        console.log("Overshot the end space. Stay put.")
-        break;
+    for (let i = 0; i < numSpaces; ++i){
+      //Check to see if number of moves is passed the start/end spaces
+      if (!loc[moveDirection]  && i < numSpaces){
+        console.log("Overshot the space. Stay put.")
+        return false;
       }
-      loc = loc.next; 
+      loc = loc[moveDirection];
     }
-    if(!overshotWin){
-      loc.leave();
+      this.#Location.leave();
       loc.land(this);
-    }
+      return true;
   }
 
-  moveBack (numSpaces) {
-    let loc = this.#Location;
-    let underShotStart = false;
-    //Traverse through spaces according the next pointer
-    for (let i = 0; i < numSpaces; i++){
-      //Check to see if number of moves is prior to starting space
-      if (loc.back == null && i < numSpaces){
-        underShotStart = true;
-        console.log("Undershot the start space. Stay put.")
-        break;
-      }
-      loc = loc.back; 
-    }
-    if(!underShotStart){
-      loc.leave();
-      loc.land(this);
-    }
-  }
 }
