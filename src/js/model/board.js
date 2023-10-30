@@ -27,12 +27,20 @@ export class Board {
     this.#numLadders = numLadders;
   }
 
-  get spaces() {
+  get startSpace() {
     return this.#Start;
   }
 
+  set startSpace(space) {
+    this.#Start = space;
+  }
+
+  get endSpace() {
+    return this.#End;
+  }
+
   setUpBoard() {
-    let curSpace = this.#Start;
+    let curSpace = this.startSpace;
     let nextSpace;
     //Get the start values and end spaces for the special spaces
     let specials = this.specialSpaces(this.numChutes, this.numLadders);
