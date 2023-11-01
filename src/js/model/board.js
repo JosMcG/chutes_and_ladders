@@ -72,7 +72,7 @@ export class Board {
       curSpace = nextSpace;
     }
     //Create the end space, which does not set a next pointer
-    this.#End = new Space(n + 1, SpaceType.END);
+    this.#End = new Space(curSpace.value + 1, SpaceType.END);
     curSpace.next = this.#End;
     this.#End.previous = curSpace;
     curSpace = this.#End;
@@ -87,7 +87,7 @@ export class Board {
       startChute = Math.floor(Math.random() * (this.#numSpaces - 11 + 1) + 10);
       //Get random number for end of chute less than start space
       endChute = Math.floor(Math.random() * startChute) + 1;
-      //If the number is already a start value of if it
+      //If the number is already a start value or if it
       //is in the bottom row of the board, don't add it to the array
       if (chuteVals[0].includes(startChute) || Math.round(startChute / 10) === 0) {
         n = n - 1;
@@ -109,7 +109,7 @@ export class Board {
       }
       chuteVals[1].push(endChute);
     }
-    return c;
+    return chuteVals;
   }
 
   createLadders(num) {
