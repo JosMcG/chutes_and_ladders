@@ -45,91 +45,112 @@ export class Board {
     //Get the start values and end spaces for the special spaces
     let specials = this.specialSpaces(this.numChutes, this.numLadders);
     //Build as many spaces as numSpaces in board
-    for (let n = 1; n < this.#numSpaces; n++) {
-      if (n < this.#numSpaces - 1) {
-        /* Check to see if the current space value is a special space.
-         * If it is, set the type to chute or ladder &
-         * set special to point to the destination */
-        if (specials.startValues.includes(curSpace.value)) {
-          let index = specials.startValues.findIndex((e) => e == curSpace.value);
-          curSpace.type =
-            specials.endSpaces[index].value > specials.startValues[index] ? SpaceType.LADDER : SpaceType.CHUTE;
-          curSpace.special = specials.endSpaces[index];
-        }
-
-        /* Check to see if the next space already exists in the
-         * special end spaces array. If it does exist, set next space
-         * pointer to that space, rather than creating a new space */
-        for (let i = 0; i < specials.endSpaces.length; i++) {
-          if (curSpace.value + 1 == specials.endSpaces[i].value) {
-            nextSpace = specials.endSpaces[i];
-          }
-        }
-        if (curSpace.next == undefined) {
-          nextSpace = new Space(n + 1, SpaceType.NORMAL);
-        }
-        curSpace.next = nextSpace;
-        nextSpace.previous = curSpace;
-        curSpace = nextSpace;
-      } else {
-        this.#End = new Space(n + 1, SpaceType.END);
-        curSpace.next = this.#End;
-        this.#End.previous = curSpace;
-        curSpace = this.#End;
+    for (let n = 1; n < this.#numSpaces - 1; n++) {
+      /* Check to see if the current space value is a special space.
+       * If it is, set the type to chute or ladder &
+       * set special to point to the corresponding end space */
+      if (specials.startValues.includes(curSpace.value)) {
+        let index = specials.startValues.findIndex((e) => e == curSpace.value);
+        curSpace.type =
+          specials.endSpaces[index].value > specials.startValues[index] ? SpaceType.LADDER : SpaceType.CHUTE;
+        curSpace.special = specials.endSpaces[index];
       }
+
+      /* Check to see if the next space already exists in the
+       * special end spaces array. If it does exist, set next space
+       * pointer to that space, rather than creating a new space */
+      for (let i = 0; i < specials.endSpaces.length; i++) {
+        if (curSpace.value + 1 == specials.endSpaces[i].value) {
+          nextSpace = specials.endSpaces[i];
+        }
+      }
+      if (curSpace.next == undefined) {
+        nextSpace = new Space(n + 1, SpaceType.NORMAL);
+      }
+      curSpace.next = nextSpace;
+      nextSpace.previous = curSpace;
+      curSpace = nextSpace;
     }
+    //Create the end space, which does not set a next pointer
+    this.#End = new Space(n + 1, SpaceType.END);
+    curSpace.next = this.#End;
+    this.#End.previous = curSpace;
+    curSpace = this.#End;
   }
 
   createChutes(num) {
-    let c = [[], []];
+    let chuteVals = [[], []];
     let startChute;
     let endChute;
     for (let n = 0; n < num; n++) {
-      startChute = Math.floor(Math.random() * this.#numSpaces) + 1;
+      //Get random number for start of chute from 11 to number of spaces
+      startChute = Math.floor(Math.random() * (this.#numSpaces - 11 + 1) + 10);
+      //Get random number for end of chute less than start space
       endChute = Math.floor(Math.random() * startChute) + 1;
-      if (c[0].includes(startChute) || Math.round(startChute / 10) === 0) {
+      //If the number is already a start value of if it
+      //is in the bottom row of the board, don't add it to the array
+      if (chuteVals[0].includes(startChute) || Math.round(startChute / 10) === 0) {
         n = n - 1;
         continue;
       } else {
-        c[0].push(startChute);
+        chuteVals[0].push(startChute);
       }
+      /*Before pushing the chute end value to the array, check to see
+       *if the value already exists in the array,
+       *if the value is greater than the start value,
+       *and if the value is in the same row.
+       *If any are true, generate a new value*/
       while (
-        c[1].includes(endChute) ||
+        chuteVals[1].includes(endChute) ||
         endChute >= startChute ||
         Math.round(endChute / 10) === Math.round(startChute / 10)
       ) {
         endChute = Math.floor(Math.random() * this.#numSpaces) + 1;
       }
-      c[1].push(endChute);
+      chuteVals[1].push(endChute);
     }
     return c;
   }
 
   createLadders(num) {
-    let l = [[], []];
+    let ladderVals = [[], []];
     let startLadder;
     let endLadder;
     for (let n = 0; n < num; n++) {
-      startLadder = Math.floor(Math.random() * this.#numSpaces) + 1;
+      //Get random number for start of ladder up to number of spaces - 10
+      startLadder = Math.floor(Math.random() * (this.#numSpaces - 10) + 1);
+      //Get random number for end of ladder greater than start space
       endLadder = Math.floor(Math.random() * this.#numSpaces) + 1;
-      if (l[0].includes(startLadder) || Math.round(startLadder / 10) === Math.round((this.#numSpaces - 1) / 10)) {
+      //If the number is already a ladder start value or if it
+      //is in the top row of the board, don't add it to the array
+      if (
+        ladderVals[0].includes(startLadder) ||
+        Math.round(startLadder / 10) === Math.round((this.#numSpaces - 1) / 10)
+      ) {
         n = n - 1;
         continue;
       } else {
-        l[0].push(startLadder);
+        ladderVals[0].push(startLadder);
       }
+      /*Before pushing the ladder end value to the array, check to see
+       *if the value already exists in the array,
+       *if the value is less than the start value,
+       *and if the value is in the same row.
+       *If any are true, generate a new value*/
       while (
-        l[1].includes(endLadder) ||
+        ladderVals[1].includes(endLadder) ||
         endLadder <= startLadder ||
         Math.round(endLadder / 10) === Math.round(startLadder / 10)
       ) {
         endLadder = Math.floor(Math.random() * this.#numSpaces) + 1;
       }
-      l[1].push(endLadder);
+      ladderVals[1].push(endLadder);
     }
-    return l;
+    return ladderVals;
   }
 
+  //Uses the chute and ladder values to create an object with an array of start values
+  //and an array of end spaces to be used in setUpBoard
   specialSpaces() {
     let specialSpaceLocations = {
       startValues: [],
@@ -138,20 +159,23 @@ export class Board {
     let chutes = [[], []];
     let ladders = [[], []];
     let endValues = [];
-    while (!this.uniqueValues(chutes, ladders)) {
+    //Ensure all values are unique, so only one chute or ladder interacts with a space
+    while (!this.isUniqueValues(chutes, ladders)) {
       chutes = this.createChutes(this.#numChutes);
       ladders = this.createLadders(this.#numLadders);
     }
 
     specialSpaceLocations.startValues = chutes[0].concat(ladders[0]);
     endValues = chutes[1].concat(ladders[1]);
+    //Create the array of endSpaces with the end values
     for (let n = 0; n < specialSpaceLocations.startValues.length; n++) {
       specialSpaceLocations.endSpaces[n] = new Space(endValues[n], SpaceType.NORMAL);
     }
     return specialSpaceLocations;
   }
 
-  uniqueValues(chutes, ladders) {
+  //check to see if chutes and ladders start and end spaces are all unique
+  isUniqueValues(chutes, ladders) {
     let unique = false;
     let chutesAndLaddersValues = chutes[0].concat(chutes[1], ladders[0], ladders[1]);
     let uniqueVals = Array.from(new Set(chutesAndLaddersValues));
@@ -193,4 +217,12 @@ export class Board {
 
 const chutesAndLadders = new Board(100, 5, 5);
 chutesAndLadders.setUpBoard();
-chutesAndLadders.display();
+let s = chutesAndLadders.startSpace;
+while (s.next) {
+  if (s.type == SpaceType.CHUTE) {
+    console.log("Chute: " + s.value + " to space: " + s.special.value);
+  } else if (s.type == SpaceType.LADDER) {
+    console.log("Ladder: " + s.value + " to space: " + s.special.value);
+  }
+  s = s.next;
+}
