@@ -11,7 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+import { generateRandomNumber } from "./functions.js";
 import { Space, SpaceType } from "./space.js";
+import { Die } from "./die.js";
 
 export class Board {
   #Start;
@@ -19,6 +21,7 @@ export class Board {
   #numChutes;
   #numLadders;
   #End;
+  #rowLength = 10;
 
   constructor(numSpaces, numChutes, numLadders) {
     this.#Start = new Space(1, SpaceType.START);
@@ -39,152 +42,115 @@ export class Board {
     return this.#End;
   }
 
+  set endSpace(space) {
+    space.type = SpaceType.END;
+    this.#End = space;
+  }
+
   setUpBoard() {
     let curSpace = this.startSpace;
     let nextSpace;
-    //Get the start values and end spaces for the special spaces
-    let specials = this.specialSpaces(this.numChutes, this.numLadders);
-    //Build as many spaces as numSpaces in board
-    for (let n = 1; n < this.#numSpaces - 1; n++) {
-      /* Check to see if the current space value is a special space.
-       * If it is, set the type to chute or ladder &
-       * set special to point to the corresponding end space */
-      if (specials.startValues.includes(curSpace.value)) {
-        let index = specials.startValues.findIndex((e) => e == curSpace.value);
-        curSpace.type =
-          specials.endSpaces[index].value > specials.startValues[index] ? SpaceType.LADDER : SpaceType.CHUTE;
-        curSpace.special = specials.endSpaces[index];
-      }
-
-      /* Check to see if the next space already exists in the
-       * special end spaces array. If it does exist, set next space
-       * pointer to that space, rather than creating a new space */
-      for (let i = 0; i < specials.endSpaces.length; i++) {
-        if (curSpace.value + 1 == specials.endSpaces[i].value) {
-          nextSpace = specials.endSpaces[i];
+    let specialSpaces = {};
+    let chuteCount = 0;
+    let ladderCount = 0;
+    let type;
+    let end;
+    for (let n = 1; n < this.#numSpaces; n++) {
+      if (this.isSpecialEndAlready(n, specialSpaces)) {
+        nextSpace = specialSpaces.n;
+      } else {
+        type = this.determineSpaceType();
+        switch (type) {
+          case SpaceType.CHUTE:
+            if (this.isSpecialTypeValid(n, type, chuteCount, ladderCount)) {
+              end = this.determineSpecialEnd(n, type);
+              curSpace.special = this.goToEndOfChute(curSpace, n, end);
+              chuteCount++;
+            }
+            break;
+          case SpaceType.LADDER:
+            if (this.isSpecialTypeValid(n, type, chuteCount, ladderCount)) {
+              end = this.determineSpecialEnd(n, type);
+              curSpace.special = this.createSpace(n, type);
+              specialSpaces.n = curSpace.special;
+              ladderCount++;
+            }
+            break;
         }
-      }
-      if (curSpace.next == undefined) {
-        nextSpace = new Space(n + 1, SpaceType.NORMAL);
+        nextSpace = this.createSpace(n + 1, type);
       }
       curSpace.next = nextSpace;
       nextSpace.previous = curSpace;
       curSpace = nextSpace;
     }
-    //Create the end space, which does not set a next pointer
-    this.#End = new Space(curSpace.value + 1, SpaceType.END);
-    curSpace.next = this.#End;
-    this.#End.previous = curSpace;
-    curSpace = this.#End;
+    this.endSpace = curSpace;
+
+    //check to see if all chutes and ladders exist
   }
 
-  createChutes(num) {
-    let chuteVals = [[], []];
-    let startChute;
-    let endChute;
-    for (let n = 0; n < num; n++) {
-      //Get random number for start of chute from 11 to number of spaces
-      startChute = Math.floor(Math.random() * (this.#numSpaces - 11 + 1) + 10);
-      //Get random number for end of chute less than start space
-      endChute = Math.floor(Math.random() * startChute) + 1;
-      //If the number is already a start value or if it
-      //is in the bottom row of the board, don't add it to the array
-      if (chuteVals[0].includes(startChute) || Math.round(startChute / 10) === 0) {
-        n = n - 1;
-        continue;
-      } else {
-        chuteVals[0].push(startChute);
-      }
-      /*Before pushing the chute end value to the array, check to see
-       *if the value already exists in the array,
-       *if the value is greater than the start value,
-       *and if the value is in the same row.
-       *If any are true, generate a new value*/
-      while (
-        chuteVals[1].includes(endChute) ||
-        endChute >= startChute ||
-        Math.round(endChute / 10) === Math.round(startChute / 10)
-      ) {
-        endChute = Math.floor(Math.random() * this.#numSpaces) + 1;
-      }
-      chuteVals[1].push(endChute);
-    }
-    return chuteVals;
+  determineSpaceType() {
+    const makeChute = 3;
+    const makeLadder = 7;
+    const die = new Die(Math.round(this.#numSpaces / (this.#numChutes + this.#numLadders)));
+    let type = die.roll();
+    return type == makeChute ? SpaceType.CHUTE : type == makeLadder ? SpaceType.LADDER : SpaceType.NORMAL;
   }
 
-  createLadders(num) {
-    let ladderVals = [[], []];
-    let startLadder;
-    let endLadder;
-    for (let n = 0; n < num; n++) {
-      //Get random number for start of ladder up to number of spaces - 10
-      startLadder = Math.floor(Math.random() * (this.#numSpaces - 10) + 1);
-      //Get random number for end of ladder greater than start space
-      endLadder = Math.floor(Math.random() * this.#numSpaces) + 1;
-      //If the number is already a ladder start value or if it
-      //is in the top row of the board, don't add it to the array
-      if (
-        ladderVals[0].includes(startLadder) ||
-        Math.round(startLadder / 10) === Math.round((this.#numSpaces - 1) / 10)
-      ) {
-        n = n - 1;
-        continue;
-      } else {
-        ladderVals[0].push(startLadder);
-      }
-      /*Before pushing the ladder end value to the array, check to see
-       *if the value already exists in the array,
-       *if the value is less than the start value,
-       *and if the value is in the same row.
-       *If any are true, generate a new value*/
-      while (
-        ladderVals[1].includes(endLadder) ||
-        endLadder <= startLadder ||
-        Math.round(endLadder / 10) === Math.round(startLadder / 10)
-      ) {
-        endLadder = Math.floor(Math.random() * this.#numSpaces) + 1;
-      }
-      ladderVals[1].push(endLadder);
-    }
-    return ladderVals;
+  createSpace(label, type) {
+    return new Space(toString(label), type);
   }
 
-  //Uses the chute and ladder values to create an object with an array of start values
-  //and an array of end spaces to be used in setUpBoard
-  specialSpaces() {
-    let specialSpaceLocations = {
-      startValues: [],
-      endSpaces: [],
-    };
-    let chutes = [[], []];
-    let ladders = [[], []];
-    let endValues = [];
-    //Ensure all values are unique, so only one chute or ladder interacts with a space
-    while (!this.isUniqueValues(chutes, ladders)) {
-      chutes = this.createChutes(this.#numChutes);
-      ladders = this.createLadders(this.#numLadders);
-    }
-
-    specialSpaceLocations.startValues = chutes[0].concat(ladders[0]);
-    endValues = chutes[1].concat(ladders[1]);
-    //Create the array of endSpaces with the end values
-    for (let n = 0; n < specialSpaceLocations.startValues.length; n++) {
-      specialSpaceLocations.endSpaces[n] = new Space(endValues[n], SpaceType.NORMAL);
-    }
-    return specialSpaceLocations;
+  determineSpecialEnd(curPosition, type) {
+    let endVal;
+    do endVal = generateRandomNumber(this.#numSpaces);
+    while (!this.isSpecialEndValid(curPosition, type, endVal));
+    return endVal;
   }
 
-  //check to see if chutes and ladders start and end spaces are all unique
-  isUniqueValues(chutes, ladders) {
-    let unique = false;
-    let chutesAndLaddersValues = chutes[0].concat(chutes[1], ladders[0], ladders[1]);
-    let uniqueVals = Array.from(new Set(chutesAndLaddersValues));
-    if (uniqueVals.length == (this.#numChutes + this.#numLadders) * 2) {
-      unique = true;
-    }
-    return unique;
+  isSpecialEndAlready(curPosition, specialEndSpaces) {
+    return Object.keys(specialEndSpaces).includes(curPosition);
   }
 
+  isChuteInFirstRow(curPosition) {
+    return curPosition <= this.#rowLength ? true : false;
+  }
+
+  isLadderInEndRow(curPosition) {
+    return curPosition >= this.#numSpaces - this.#rowLength ? true : false;
+  }
+
+  isInSameRow(curPosition, endPosition) {
+    return Math.round(endPosition / this.#rowLength) === Math.round(curPosition / this.#rowLength);
+  }
+
+  isSpecialEndValid(curPosition, type, endPosition) {
+    let valid = false;
+    let span = endPosition - curPosition;
+    valid = type == SpaceType.CHUTE && span < 0 ? false : type == SpaceType.LADDER && span > 0 ? false : true;
+    return valid && this.isInSameRow(curPosition, endPosition);
+  }
+
+  isSpecialTypeValid(curPosition, type, chuteCount, ladderCount) {
+    let acceptablePosition = false;
+    let acceptableNum = false;
+    if (type == SpaceType.CHUTE) {
+      acceptablePosition = !this.isChuteInFirstRow(curPosition);
+      acceptableNum = chuteCount < this.#numChutes;
+    } else if (type == SpaceType.LADDER) {
+      acceptablePosition = !this.isLadderInEndRow(curPosition);
+      acceptableNum = ladderCount < this.#numLadders;
+    }
+    return acceptablePosition && acceptableNum;
+  }
+
+  goToEndOfChute(curSpace, position, endVal) {
+    for (let n = 0; n < position - endVal; n++) {
+      curSpace = curSpace.previous;
+    }
+    return curSpace;
+  }
+
+  /*  Need to change this method!!!
   display() {
     let cur = this.#End;
     let arr = [];
@@ -212,17 +178,8 @@ export class Board {
       }
       console.log();
     }
-  }
+  }*/
 }
 
 const chutesAndLadders = new Board(100, 5, 5);
 chutesAndLadders.setUpBoard();
-let s = chutesAndLadders.startSpace;
-while (s.next) {
-  if (s.type == SpaceType.CHUTE) {
-    console.log("Chute: " + s.value + " to space: " + s.special.value);
-  } else if (s.type == SpaceType.LADDER) {
-    console.log("Ladder: " + s.value + " to space: " + s.special.value);
-  }
-  s = s.next;
-}
