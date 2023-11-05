@@ -86,6 +86,7 @@ export class Board {
       curSpace.next = nextSpace;
       nextSpace.previous = curSpace;
       curSpace = nextSpace;
+      console.log(curSpace.value);
     }
     this.endSpace = curSpace;
 
@@ -101,7 +102,7 @@ export class Board {
   }
 
   createSpace(label, type) {
-    return new Space(toString(label), type);
+    return new Space(label.toString(), type);
   }
 
   determineSpecialEnd(curPosition, type) {
