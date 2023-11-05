@@ -26,10 +26,11 @@ describe("Check that a board has the proper number of spaces with a start and en
     expect(board.startSpace).toBeTruthy();
     expect(board.startSpace.next).toBeTruthy();
     expect(board.startSpace.previous).toBeFalsy();
-    expect(board.startSpace.type == SpaceType.START);
+    expect(board.startSpace.type).toEqual(SpaceType.START);
     expect(board.endSpace).toBeTruthy();
     expect(board.endSpace.next).toBeFalsy();
     expect(board.endSpace.previous).toBeTruthy();
+    expect(board.endSpace.type).toEqual(SpaceType.END);
   });
 
   test("check for 100 spaces", () => {
@@ -66,17 +67,27 @@ describe("Check that a board has the proper number of spaces with a start and en
     expect(count).toEqual(5);
   });
 
-  test("check that all chutes end at a value less than the start", () => {
-    let chutes = board.createChutes(5);
-    for (let n = 0; n < chutes[0].length; n++) {
-      expect(chutes[0][n]).toBeGreaterThan(chutes[1][n]);
+  test("to see if bottom row has any chutes", () => {
+    let s = board.startSpace;
+    let count = 0;
+    for (let n = 0; n < 10; n++) {
+      if (s.type == SpaceType.CHUTE) {
+        count++;
+      }
+      s = s.next;
     }
+    expect(count).toEqual(0);
   });
 
-  test("check that all ladders end at a value greater than the start", () => {
-    let ladders = board.createLadders(5);
-    for (let n = 0; n < ladders[0].length; n++) {
-      expect(ladders[0][n]).toBeLessThan(ladders[1][n]);
+  test("to see if top row has any ladders", () => {
+    let s = board.endSpace;
+    let count = 0;
+    for (let n = 0; n < 10; n++) {
+      if (s.type == SpaceType.LADDER) {
+        count++;
+      }
+      s = s.previous;
     }
+    expect(count).toEqual(0);
   });
 });

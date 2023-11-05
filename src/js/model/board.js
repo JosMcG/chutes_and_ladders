@@ -66,6 +66,8 @@ export class Board {
               end = this.determineSpecialEnd(n, type);
               curSpace.special = this.goToEndOfChute(curSpace, n, end);
               chuteCount++;
+            } else {
+              type = SpaceType.NORMAL;
             }
             break;
           case SpaceType.LADDER:
@@ -74,6 +76,8 @@ export class Board {
               curSpace.special = this.createSpace(n, type);
               specialSpaces.n = curSpace.special;
               ladderCount++;
+            } else {
+              type = SpaceType.NORMAL;
             }
             break;
         }
@@ -180,6 +184,3 @@ export class Board {
     }
   }*/
 }
-
-const chutesAndLadders = new Board(100, 5, 5);
-chutesAndLadders.setUpBoard();
