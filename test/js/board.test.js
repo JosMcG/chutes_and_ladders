@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { SpaceType } from "../../src/js/model/space.js";
-import { Board } from "../../src/js/model/board.js";
+import { Board } from "../../src/js/model/boardAgain.js";
 
 describe("Check that a board has the proper number of spaces with a start and end", () => {
   const board = new Board(100, 5, 5);

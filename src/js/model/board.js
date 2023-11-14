@@ -60,25 +60,20 @@ export class Board {
         nextSpace = specialSpaces.n;
       } else {
         type = this.determineSpaceType();
+        if (this.isSpecialTypeValid(n, type, chuteCount, ladderCount)) {
+          end = this.determineSpecialEnd(n, type);
+        } else {
+          type = SpaceType.NORMAL;
+        }
         switch (type) {
           case SpaceType.CHUTE:
-            if (this.isSpecialTypeValid(n, type, chuteCount, ladderCount)) {
-              end = this.determineSpecialEnd(n, type);
-              curSpace.special = this.goToEndOfChute(curSpace, n, end);
-              chuteCount++;
-            } else {
-              type = SpaceType.NORMAL;
-            }
+            curSpace.special = this.goToEndOfChute(curSpace, n, end);
+            chuteCount++;
             break;
           case SpaceType.LADDER:
-            if (this.isSpecialTypeValid(n, type, chuteCount, ladderCount)) {
-              end = this.determineSpecialEnd(n, type);
-              curSpace.special = this.createSpace(n, type);
-              specialSpaces.n = curSpace.special;
-              ladderCount++;
-            } else {
-              type = SpaceType.NORMAL;
-            }
+            curSpace.special = this.createSpace(n, type);
+            specialSpaces.n = curSpace.special;
+            ladderCount++;
             break;
         }
         nextSpace = this.createSpace(n + 1, type);
@@ -86,7 +81,6 @@ export class Board {
       curSpace.next = nextSpace;
       nextSpace.previous = curSpace;
       curSpace = nextSpace;
-      console.log(curSpace.value);
     }
     this.endSpace = curSpace;
 
@@ -96,6 +90,8 @@ export class Board {
   determineSpaceType() {
     const makeChute = 3;
     const makeLadder = 7;
+    //This calculates a statistically close number relating to the probability of desired number
+    //of chutes and ladders being rolled, with a high guarantee that at least that number is achieved
     const die = new Die(Math.round(this.#numSpaces / (this.#numChutes + this.#numLadders)));
     let type = die.roll();
     return type == makeChute ? SpaceType.CHUTE : type == makeLadder ? SpaceType.LADDER : SpaceType.NORMAL;
@@ -131,7 +127,12 @@ export class Board {
   isSpecialEndValid(curPosition, type, endPosition) {
     let valid = false;
     let span = endPosition - curPosition;
-    valid = type == SpaceType.CHUTE && span < 0 ? false : type == SpaceType.LADDER && span > 0 ? false : true;
+    valid =
+      type == SpaceType.CHUTE && span < 0 && span >= -40
+        ? false
+        : type == SpaceType.LADDER && span > 0 && span <= 40
+        ? false
+        : true;
     return valid && this.isInSameRow(curPosition, endPosition);
   }
 
@@ -153,6 +154,14 @@ export class Board {
       curSpace = curSpace.previous;
     }
     return curSpace;
+  }
+
+  isAllChutesBuilt(count) {
+    return count == this.#numChutes;
+  }
+
+  isAllLaddersBuilt(count) {
+    return count == this.#numLadders;
   }
 
   /*  Need to change this method!!!
@@ -185,3 +194,20 @@ export class Board {
     }
   }*/
 }
+
+let board = new Board(100, 5, 5);
+board.setUpBoard();
+let s = board.startSpace;
+let cCount = 0;
+let lCount = 0;
+for (let n = 1; n <= 100; n++) {
+  if (s.type == SpaceType.CHUTE) {
+    cCount++;
+  }
+  if (s.type == SpaceType.LADDER) {
+    lCount++;
+  }
+  s = s.next;
+}
+console.log(cCount);
+console.log(lCount);
