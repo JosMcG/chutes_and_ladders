@@ -13,45 +13,22 @@
 // limitations under the License.
 
 import { SpaceType } from "./space.js";
-import { Game } from "./game.js";
 
 export class Board {
-  //how do I pass in the function as a parameter?
   constructor(startSpace, numSpaces, specialSpaces, createSpace) {
-    console.log(Object.keys(specialSpaces).length);
+    console.log(Object.keys(specialSpaces));
     this.start = startSpace;
     let curSpace = startSpace;
     let nextSpace;
-    for (let n = 1; n < numSpaces; n++) {
+    for (let n = 2; n <= numSpaces; n++) {
       if (Object.keys(specialSpaces).includes(n.toString())) {
         nextSpace = specialSpaces[n.toString()];
       } else {
-        nextSpace = createSpace(n + 1, SpaceType.NORMAL);
+        nextSpace = createSpace(n, SpaceType.NORMAL);
       }
       curSpace.next = nextSpace;
       nextSpace.previous = curSpace;
       curSpace = nextSpace;
     }
-    nextSpace = createSpace(numSpaces, SpaceType.END); //figure this out
-    curSpace.next = nextSpace;
-    nextSpace.previous = curSpace;
-    curSpace = nextSpace;
   }
 }
-
-let chutesAndLadders = new Game(100, 5, 5);
-let s = chutesAndLadders.startSpace;
-let cCount = 0;
-let lCount = 0;
-for (let n = 1; n <= 100; n++) {
-  if (s.type == 3) {
-    cCount++;
-  }
-  if (s.type == SpaceType.LADDER) {
-    lCount++;
-  }
-  //console.log(s.value + " : " + s.type);
-  s = s.next;
-}
-console.log(cCount);
-console.log(lCount);

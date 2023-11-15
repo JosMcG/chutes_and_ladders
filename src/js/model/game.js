@@ -17,7 +17,6 @@ import { Board } from "./boardYetAgain.js";
 
 // limitations under the License.
 export class Game {
-  endSpace;
   ROW_LENGTH = 10;
   SPAN = 40;
 
@@ -36,30 +35,8 @@ export class Game {
   };
 
   isAlreadySpecial(position, specialArr) {
-    console.log("checking for " + position);
-    console.log("in " + specialArr);
     return specialArr.includes(position.toString());
   }
-
-  // isSpanAcceptable(startPosition, endPosition) {
-  //   return Math.abs(startPosition - endPosition) <= this.SPAN;
-  // }
-
-  // isCorrectDirection(startPosition, endPosition, type) {
-  //   return type == SpaceType.CHUTE && startPosition - endPosition > 0
-  //     ? true
-  //     : type == SpaceType.LADDER && startPosition - endPosition < 0
-  //     ? true
-  //     : false;
-  // }
-
-  // isEndValid(startPosition, endPostition, specialArr) {
-
-  //   return !this.isAlreadySpecial(startPosition, specialArr); &&
-  //   this.isSpanAcceptable(startPosition, endPostition) &&
-  //   this.isCorrectDirection(startPosition, endPostition, type) &&
-  //   !this.isInSameRow(startPosition, endPostition)
-  // }
 
   //determine the chute and ladder positions,
   //add the corresponding created spaces to the specialSpaces object,
@@ -106,7 +83,7 @@ export class Game {
     this.specialSpaces[startPosition].special = this.specialSpaces[endPosition];
   }
 
-  //create all chutes, then all ladders and return them in an object
+  //create all chutes, all ladders, and final space and return them in an object
   createSpecials() {
     for (let n = 0; n < this.numChutes; n++) {
       this.assignSpecial(SpaceType.CHUTE);
@@ -114,6 +91,7 @@ export class Game {
     for (let n = 0; n < this.numLadders; n++) {
       this.assignSpecial(SpaceType.LADDER);
     }
+    this.specialSpaces[this.numSpaces] = this.createSpace(this.numSpaces, SpaceType.END);
     return this.specialSpaces;
   }
 }
