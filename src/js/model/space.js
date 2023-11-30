@@ -95,9 +95,11 @@ export class Space {
 
   //Takes the avatar interacting with the space, and sets its location to the space it occupies
   land(avatar) {
+    let gameOver = false;
     //Check to see if avatar landed on winning space
     if (this.type == SpaceType.END) {
       console.log(avatar.color + " won!"); //*****end game at this point*****
+      gameOver = true;
     }
     //Allow > 1 avatar on the start space; if avatar lands on a space already occupied,
     //move the first occupying avatar one space, then place other avatar on the space
@@ -114,8 +116,10 @@ export class Space {
       this.avatars = avatar;
       avatar.location = this;
     }
+    return gameOver;
   }
 
+  //Currently, this is a placeholder - needs built out
   //takes an array of validation functions
   valid(validators) {
     for (let f = 0; f < validators.length; f++) {
