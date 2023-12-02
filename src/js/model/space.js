@@ -98,7 +98,6 @@ export class Space {
     let gameOver = false;
     //Check to see if avatar landed on winning space
     if (this.type == SpaceType.END) {
-      console.log(avatar.color + " won!"); //*****end game at this point*****
       gameOver = true;
     }
     //Allow > 1 avatar on the start space; if avatar lands on a space already occupied,

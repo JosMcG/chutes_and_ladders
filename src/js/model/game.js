@@ -16,7 +16,7 @@ import { generateRandomNumInRange } from "./functions.js";
 import { Space, SpaceType } from "./space.js";
 import { Board } from "./board.js";
 import { Player, PlayerOrder } from "./player.js";
-import { Avatar } from "./avatar.js";
+import { Avatar, Color } from "./avatar.js";
 import { Die } from "./die.js";
 
 //const AVATARS = [pawn(Color.RED), pawn(Color.YELLOW), pawn(Color.GREEN), pawn(Color.BLUE), pawn(Color.PURPLE)];
@@ -34,12 +34,13 @@ const isAlreadySpecial = (position, specialArr) => {
   return specialArr.includes(position.toString());
 };
 
-const determinePosition = (min, max, type, specialSpaces) => {
+const determinePosition = (min, max, specialSpaces) => {
   let position;
   do {
     position = generateRandomNumInRange(min, max);
   } while (isAlreadySpecial(position, Object.keys(specialSpaces)));
-  specialSpaces[position] = createSpace(position, type);
+  //specialSpaces[position] = createSpace(position, type);
+
   return position;
 };
 
@@ -59,8 +60,9 @@ const assignSpecial = (type, specialSpaces) => {
       max = NUM_SPACES - ROW_LENGTH + 1;
       break;
   }
-  let startPosition = determinePosition(min, max, type, specialSpaces);
-  specialSpaces = assignSpecialEnd(startPosition, type);
+  let startPosition = determinePosition(min, max, specialSpaces);
+  specialSpaces[startPosition] = createSpace(startPosition, type);
+  specialSpaces = assignSpecialEnd(startPosition, type, specialSpaces);
   return specialSpaces;
 };
 
@@ -78,6 +80,7 @@ const assignSpecialEnd = (startPosition, type, specialSpaces) => {
       break;
   }
   let endPosition = determinePosition(min, max, SpaceType.NORMAL, specialSpaces);
+  specialSpaces[endPosition] = createSpace(endPosition, SpaceType.NORMAL);
   specialSpaces[startPosition].special = specialSpaces[endPosition];
   return specialSpaces;
 };
@@ -86,10 +89,10 @@ const assignSpecialEnd = (startPosition, type, specialSpaces) => {
 const createSpecials = (numChutes, numLadders) => {
   let specialSpaces = new Object();
   for (let n = 0; n < numChutes; n++) {
-    specialSpaces = assignSpecial(startPosition, SpaceType.CHUTE, specialSpaces);
+    specialSpaces = assignSpecial(SpaceType.CHUTE, specialSpaces);
   }
   for (let n = 0; n < numLadders; n++) {
-    specialSpaces = assignSpecial(startPosition, SpaceType.LADDER, specialSpaces);
+    specialSpaces = assignSpecial(SpaceType.LADDER, specialSpaces);
   }
   specialSpaces[NUM_SPACES] = createSpace(NUM_SPACES, SpaceType.END);
   return specialSpaces;
@@ -115,10 +118,10 @@ const createSpecials = (numChutes, numLadders) => {
 //       order[n] = subOrder;
 //     });
 //   }
-//   return Object.values(order).join();
+//   return Object.values(order).reduce((player, cur) => player.concat(cur));
 // };
 
-const pawn = (color) => {
+export const pawn = (color) => {
   return new Avatar(color);
 };
 
@@ -132,7 +135,11 @@ export class Game {
   constructor(numChutes, numLadders) {
     this.startSpace = new Space(1, SpaceType.START);
     this.specialSpaces = createSpecials(numChutes, numLadders); //put #chutes and ladders here and eliminate the this. values
-    this.board = new Board(this.startSpace, NUM_SPACES, specialSpaces, createSpace);
+    this.board = new Board(this.startSpace, NUM_SPACES, this.specialSpaces, createSpace);
+  }
+
+  getRowLength() {
+    return ROW_LENGTH;
   }
 
   //Sets up a new board with avatars set on start space
@@ -153,16 +160,18 @@ export class Game {
 
   setAvatar(player, avatar) {
     if (!this.selectedAvatars.includes(avatar)) {
-      player.selectAvatar(avatar);
       avatar.location = this.startSpace;
-      this.selectedAvatars.push(avatar);
+      player.selectAvatar(avatar);
+      this.selectedAvatars.push(player.avatar);
     }
   }
   setUpGame() {
-    if (this.players.length > MIN_PLAYERS) {
+    if (this.players.length < MIN_PLAYERS) {
       console.log("Need more players."); //redirect to invite players
     }
-    this.players = new PlayerOrder(this.players);
+    let orderedPlayers = new PlayerOrder(this.players);
+    orderedPlayers.linkPlayers();
+    this.players = orderedPlayers.players;
     this.firstPlayer = this.players[0];
   }
 
@@ -172,8 +181,8 @@ export class Game {
       if (!p.avatar) {
         ready = false;
       }
-      return ready;
     });
+    return ready;
   }
 
   // //Not sure if this will be needed
@@ -200,3 +209,24 @@ export class Game {
     }
   }
 }
+
+const game = new Game(5, 5);
+game.board.display();
+let s = game.startSpace;
+game.registerPlayer("Fred");
+game.registerPlayer("Wilma");
+game.registerPlayer("Shaggy");
+game.registerPlayer("Daphne");
+console.log("player count: " + game.players.length);
+game.setUpGame();
+let avs = [pawn(Color.BLUE), pawn(Color.GREEN), pawn(Color.RED), pawn(Color.YELLOW), pawn(Color.PURPLE)];
+for (let i = 0; i < game.players.length; i++) {
+  game.setAvatar(game.players[i], avs[i]);
+}
+for (let p = 0; p < game.players.length; p++) {
+  console.log("player " + game.players[p].avatar.color + ": " + game.players[p].name);
+}
+if (game.verifySetUp()) {
+  console.log("Ready to play!");
+}
+game.playGame();

@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+import { Die } from "./die.js";
 
 export class Player {
   constructor(name) {
@@ -24,21 +25,20 @@ export class Player {
   }
 
   //Returns true if on END space
-  takeTurn(die) {
-    let rolledNum = die.roll();
-    return this.avatar.move(rolledNum);
-  }
+  takeTurn = (die) => {
+    return this.avatar.move(die.roll());
+  };
 }
 
 export class PlayerOrder {
   constructor(players) {
-    this.players = playerOrder(players);
+    this.players = this.playerOrder(players);
     this.firstPlayer = this.players[0];
   }
 
   //determines order of players, handling the same number being rolled by multiple players at any stage of the roll-off
   //and inserting them in appropriate order at the appropriate place
-  playerOrder = (players) => {
+  playerOrder(players) {
     let order = {}; //stores the rolled number and player(s) that rolled it
     let holdOrder = []; //stores an array of players that rolled the same number
     let die = new Die(6);
@@ -57,8 +57,8 @@ export class PlayerOrder {
         order[n] = subOrder;
       });
     }
-    return Object.values(order).join();
-  };
+    return Object.values(order).reduce((player, cur) => player.concat(cur));
+  }
 
   linkPlayers() {
     let cur = this.firstPlayer;

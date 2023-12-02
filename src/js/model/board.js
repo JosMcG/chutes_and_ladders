@@ -16,6 +16,7 @@ import { SpaceType } from "./space.js";
 
 export class Board {
   constructor(startSpace, numSpaces, specialSpaces, createSpace) {
+    this.end = specialSpaces[numSpaces];
     this.start = startSpace;
     let curSpace = startSpace;
     let nextSpace;
@@ -32,15 +33,27 @@ export class Board {
   }
 
   display() {
-    let curSpace = this.start;
-    while (curSpace.next) {
-      if (curSpace.value < 10) {
-        process.stdout.write("| " + curSpace.value + " ");
+    let cur = this.end;
+    let arr = [];
+    while (cur) {
+      if (Math.floor(cur.value / 10) % 2 == 0) {
+        for (let n = 0; n < 10; n++) {
+          process.stdout.write(" " + cur.value + " ");
+          cur = cur.previous;
+        }
+      } else {
+        arr.push(cur.value);
+        for (let n = 1; n < 10; n++) {
+          arr.push(cur.previous.value);
+          cur = cur.previous;
+        }
+        cur = cur.previous;
+        let arrLength = arr.length;
+        for (let n = 0; n < arrLength; n++) {
+          process.stdout.write(" " + arr.pop(n) + " ");
+        }
       }
-      if (curSpace.value % 10 == 0) {
-        process.stdout.write("| " + curSpace.value + "|");
-      }
-      curSpace = curSpace.next;
+      console.log();
     }
   }
 }

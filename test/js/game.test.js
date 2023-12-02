@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { SpaceType } from "../../src/js/model/space.js";
-import { Game } from "../../src/js/model/game.js";
-import { Player } from "../../src/js/model/player.js";
+import { Game, pawn } from "../../src/js/model/game.js";
+import { Color } from "../../src/js/model/avatar.js";
+//import { Player } from "../../src/js/model/player.js";
 
 describe("Check that a game has the proper number of spaces with a start and end", () => {
-  const game = new Game(100, 5, 5);
+  const game = new Game(5, 5);
   let s;
   beforeEach(() => {
     s = game.startSpace;
@@ -72,7 +73,7 @@ describe("Check that a game has the proper number of spaces with a start and end
 
   test("to see if bottom row has any chutes", () => {
     let count = 0;
-    for (let n = 0; n < game.ROW_LENGTH; n++) {
+    for (let n = 0; n < game.getRowLength(); n++) {
       if (s.type == SpaceType.CHUTE) {
         count++;
       }
@@ -86,7 +87,7 @@ describe("Check that a game has the proper number of spaces with a start and end
     while (s.next) {
       s = s.next;
     }
-    for (let n = 0; n < game.ROW_LENGTH; n++) {
+    for (let n = 0; n < game.getRowLength(); n++) {
       if (s.type == SpaceType.LADDER) {
         count++;
       }
@@ -128,21 +129,12 @@ describe("Check that a game has the proper number of spaces with a start and end
     let rowEnd;
     while (s.next) {
       if (s.type == SpaceType.CHUTE || s.type == SpaceType.LADDER) {
-        rowStart = Math.ceil(Number(s.value) / game.ROW_LENGTH);
-        rowEnd = Math.ceil(Number(s.special.value) / game.ROW_LENGTH);
+        rowStart = Math.ceil(Number(s.value) / game.getRowLength());
+        rowEnd = Math.ceil(Number(s.special.value) / game.getRowLength());
         expect(rowStart).not.toEqual(rowEnd);
       }
       s = s.next;
     }
-  });
-
-  test("playerOrder() to see if length of returned array is equal to the length of the passed in array", () => {
-    game.registerPlayer("Fred");
-    game.registerPlayer("Wilma");
-    game.registerPlayer("Barney");
-    game.registerPlayer("Betty");
-    let order = playerOrder(this.players);
-    expect(order.length).toEqual(this.players.length);
   });
 
   test("upon setUp() and assigning avatars to players, each player has an avatar value", () => {
@@ -152,10 +144,10 @@ describe("Check that a game has the proper number of spaces with a start and end
     game.registerPlayer("Daphne");
     let colors = [Color.BLUE, Color.RED, Color.GREEN, Color.PURPLE];
     game.setUpGame();
-    for (let p = 0; p < this.player.length; p++) {
-      this.player[p].avatar = pawn(colors[p]);
+    for (let p = 0; p < game.players.length; p++) {
+      game.players[p].avatar = pawn(colors[p]);
     }
-    this.order.forEach((p) => {
+    game.players.forEach((p) => {
       expect(p.avatar).toBeTruthy();
     });
   });
